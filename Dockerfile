@@ -5,24 +5,21 @@
 #CMD ["node", "/nodeapp/app.js"]
 
 
-# Use a lightweight Node image
+
+# Use a lightweight Node.js base image
 FROM node:18-alpine
 
-# Set working directory inside the container
+# Set working directory inside container
 WORKDIR /app
 
-# Copy package.json and package-lock.json first (for caching)
-COPY package*.json ./
+# Copy all your code into the container
+COPY ./nodeapp/ ./
 
-# Install dependencies
+# Install only production dependencies
 RUN npm install --production
 
-# Copy the rest of the app
-COPY . .
-
-# Expose the port the app runs on
+# Expose the port your app runs on
 EXPOSE 3000
 
-# Start the app
+# Start the application
 CMD ["node", "app.js"]
-
