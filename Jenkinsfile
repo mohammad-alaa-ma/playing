@@ -34,17 +34,17 @@ spec:
             steps {
                 withCredentials([usernamePassword(credentialsId: 'aws-ecr', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
                     container('kaniko') {
-                        sh """
+                        sh '''
 /kaniko/executor \
-  --context \$WORKSPACE \
-  --dockerfile \$WORKSPACE/Dockerfile \
-  --destination \$ECR_REPO:\$IMAGE_TAG \
-  --destination \$ECR_REPO:latest \
+  --context $WORKSPACE \
+  --dockerfile $WORKSPACE/Dockerfile \
+  --destination $ECR_REPO:$IMAGE_TAG \
+  --destination $ECR_REPO:latest \
   --cache=true \
   --verbosity=info \
-  --aws-access-key-id=\$AWS_ACCESS_KEY_ID \
-  --aws-secret-access-key=\$AWS_SECRET_ACCESS_KEY
-                        """
+  --aws-access-key-id=$AWS_ACCESS_KEY_ID \
+  --aws-secret-access-key=$AWS_SECRET_ACCESS_KEY
+                        '''
                     }
                 }
             }
