@@ -42,7 +42,8 @@ spec:
   --destination ${ECR_REPO}:latest \
   --cache=true \
   --aws-access-key-id=$AWS_ACCESS_KEY_ID \
-  --aws-secret-access-key=$AWS_SECRET_ACCESS_KEY
+  --aws-secret-access-key=$AWS_SECRET_ACCESS_KEY \
+  --verbosity=debug
                         """
                     }
                 }
