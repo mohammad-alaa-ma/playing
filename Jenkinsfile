@@ -12,7 +12,6 @@ spec:
     tty: true
   - name: kaniko
     image: gcr.io/kaniko-project/executor:latest
-    args: ["--no-push"] # overridden in the steps
     tty: true
 """
         }
@@ -36,14 +35,14 @@ spec:
                 withCredentials([usernamePassword(credentialsId: 'aws-ecr', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
                     container('kaniko') {
                         sh """
-                        /kaniko/executor \
-                          --context ${WORKSPACE} \
-                          --dockerfile ${WORKSPACE}/Dockerfile \
-                          --destination ${ECR_REPO}:${IMAGE_TAG} \
-                          --destination ${ECR_REPO}:latest \
-                          --cache=true \
-                          --aws-access-key-id=$AWS_ACCESS_KEY_ID \
-                          --aws-secret-access-key=$AWS_SECRET_ACCESS_KEY
+/kaniko/executor \
+  --context ${WORKSPACE} \
+  --dockerfile ${WORKSPACE}/Dockerfile \
+  --destination ${ECR_REPO}:${IMAGE_TAG} \
+  --destination ${ECR_REPO}:latest \
+  --cache=true \
+  --aws-access-key-id=$AWS_ACCESS_KEY_ID \
+  --aws-secret-access-key=$AWS_SECRET_ACCESS_KEY
                         """
                     }
                 }
@@ -51,6 +50,3 @@ spec:
         }
     }
 }
-
-
-
