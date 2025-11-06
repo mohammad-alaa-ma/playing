@@ -10,8 +10,10 @@ spec:
   - name: jnlp
     image: jenkins/inbound-agent:latest-jdk17
     tty: true
-  - name: kaniko
-    image: gcr.io/kaniko-project/executor:latest
+  - name: docker
+    image: docker:24.0.5-dind
+    securityContext:
+      privileged: true
     tty: true
 """
         }
@@ -30,20 +32,19 @@ spec:
             }
         }
 
-        stage('Build & Push with Kaniko') {
+        stage('Build & Push Docker Image') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'aws-ecr', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-                    container('kaniko') {
+                container('docker') {
+                    withCredentials([usernamePassword(credentialsId: 'aws-ecr', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
                         sh '''
-/kaniko/executor \
-  --context $WORKSPACE \
-  --dockerfile $WORKSPACE/Dockerfile \
-  --destination $ECR_REPO:$IMAGE_TAG \
-  --destination $ECR_REPO:latest \
-  --cache=true \
-  --verbosity=info \
-  --aws-access-key-id=$AWS_ACCESS_KEY_ID \
-  --aws-secret-access-key=$AWS_SECRET_ACCESS_KEY
+# Configure AWS ECR login
+aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO
+
+# Build and push Docker image
+docker build -t $ECR_REPO:$IMAGE_TAG .
+docker tag $ECR_REPO:$IMAGE_TAG $ECR_REPO:latest
+docker push $ECR_REPO:$IMAGE_TAG
+docker push $ECR_REPO:latest
                         '''
                     }
                 }
