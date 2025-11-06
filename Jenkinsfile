@@ -37,7 +37,17 @@ spec:
                 container('docker') {
                     withCredentials([usernamePassword(credentialsId: 'aws-ecr', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
                         sh '''
-# Configure AWS ECR login
+# Install AWS CLI dynamically
+apk add --no-cache python3 py3-pip bash
+pip3 install --upgrade pip
+pip3 install awscli
+
+# Configure AWS CLI
+aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+aws configure set default.region $AWS_REGION
+
+# Login to ECR
 aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO
 
 # Build and push Docker image
